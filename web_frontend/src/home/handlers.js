@@ -181,7 +181,8 @@ exports.mentionBoxInput = function(state, e) {
     state.suggestBox.options.splice(0, state.suggestBox.options.getLength())
     if (mentionType == 'profile') {
       state.profiles.forEach(function(profile) {
-        state.suggestBox.options.push({ title: profile.nickname(), subtitle: shortHex(profile.idStr), value: profile.idStr })
+        if (profile.isFollowing())
+          state.suggestBox.options.push({ title: profile.nickname(), subtitle: shortHex(profile.idStr), value: profile.idStr })
       })
     } else {
       for (var emoji in emojiNamedCharacters) {

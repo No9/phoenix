@@ -182,7 +182,7 @@ exports.mentionBoxInput = function(state, e) {
     if (mentionType == 'profile') {
       state.profiles.forEach(function(profile) {
         if (profile.isFollowing())
-          state.suggestBox.options.push({ title: profile.nickname(), subtitle: shortHex(profile.idStr), value: profile.idStr })
+          state.suggestBox.options.push({ title: profile.givenName() || profile.nickname(), subtitle: shortHex(profile.idStr), value: profile.idStr })
       })
     } else {
       for (var emoji in emojiNamedCharacters) {
@@ -309,6 +309,20 @@ exports.unfollow = function(state, data) {
   bus.unfollowUser(state, data.id, function(err) {
     if (err) alert(err.toString())
   })
+}
+
+exports.setName = function(state, data) {
+  var profile = bus.getProfile(state, data.id)
+  if (profile) {
+    // update profile
+    var name = prompt('New name:', profile.givenName() || profile.nickname())
+    profile.givenName.set(name||'')
+
+    // update nick map
+    var nicknameMap = state.nicknameMap()
+    nicknameMap[profile.idStr] = profile.givenName() || profile.nickname()
+    state.nicknameMap.set(nicknameMap)
+  }
 }
 
 exports.sync = function(state) {

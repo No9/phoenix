@@ -88,7 +88,6 @@ var defaults = {
     sequence: 0,
     signature: null,
     timestamp: 0,
-    authorNickname: '',
     isRunning: false,
     hidden: false
   },
@@ -98,6 +97,7 @@ var defaults = {
     idStr: '',
     feed: [],
     nickname: '',
+    givenName: '',
     joinDate: '',
     isFollowing: false
   },
@@ -193,9 +193,9 @@ function createHomeApp(events, initialState) {
 
 function createMessage(initialState) {
   var state = extend(defaults.message, initialState)
-  state.authorStr = state.author.toString('hex')
-  state.isRunning = mercury.value(state.isRunning)
-  state.hidden    = mercury.value(state.hidden)
+  state.authorStr      = state.author.toString('hex')
+  state.isRunning      = mercury.value(state.isRunning)
+  state.hidden         = mercury.value(state.hidden)
   return mercury.struct(state)
 }
 
@@ -203,6 +203,7 @@ function createProfile(initialState) {
   var state = extend(defaults.profile, initialState)
   state.feed = mercury.array(state.feed.map(createMessage))
   state.nickname = mercury.value(state.nickname)
+  state.givenName = mercury.value(state.givenName)
   state.joinDate = mercury.value(state.joinDate)
   state.isFollowing = mercury.value(state.isFollowing)
   return mercury.struct(state)

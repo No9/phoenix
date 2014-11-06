@@ -28,6 +28,7 @@ function createEvents() {
     'showId',
     'follow',
     'unfollow',
+    'setName',
     'sync',
 
     // feed buttons

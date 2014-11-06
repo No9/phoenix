@@ -14,8 +14,6 @@ exports.processFeedMsg = function(state, msg) {
   m.previous       = new Buffer(m.previous)
   m.author         = new Buffer(m.author)
   m.signature      = new Buffer(m.signature) 
-  var authorProf   = profiles.getProfile(state, m.author)
-  m.authorNickname = (authorProf) ? authorProf.nickname() : util.toHexString(m.author)
   m = models.message(m)
 
   // add to feed
@@ -25,6 +23,7 @@ exports.processFeedMsg = function(state, msg) {
   state.feedView.messageMap.set(mm)
 
   // add to profile's feed
+  var authorProf   = profiles.getProfile(state, m.author)
   if (authorProf) {
     authorProf.feed.push(m)
     if (m.content.type == 'init')
@@ -101,7 +100,6 @@ function indexReply(state, msg) {
         state.notifications.push(models.notification({
           type:           type,
           msgIdStr:       msg.idStr,
-          authorNickname: msg.authorNickname,
           msgText:        msg.content.text.split('\n')[0],
           timestamp:      msg.timestamp
         }))
@@ -144,7 +142,6 @@ function indexMentions(state, msg) {
       state.notifications.push(models.notification({
         type:          'mention',
         msgIdStr:       msg.idStr,
-        authorNickname: msg.authorNickname,
         msgText:        msg.content.text.split('\n')[0],
         timestamp:      msg.timestamp
       }))

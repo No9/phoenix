@@ -164,16 +164,19 @@ function profileControls(events, profile, isYou, followsYou) {
   var followBtn = (profile.isFollowing) ?
     h('button.btn.btn-default', {'ev-click': valueEvents.click(events.unfollow,  { id: profile.idStr })}, 'Unfollow') :
     h('button.btn.btn-default', {'ev-click': valueEvents.click(events.follow,  { id: profile.idStr })}, 'Follow')
+  var setnameBtn = h('button.btn.btn-default', {'ev-click': valueEvents.click(events.setName, { id: profile.idStr })}, 'Change name')
   return h('.profile-ctrls', [
     h('.panel.panel-default',
       h('.panel-body', [
-        h('h2', [profile.nickname, ' ', h('small', 'joined '+profile.joinDate)]),
+        h('h2', [(profile.givenName||profile.nickname), ' ', h('small', 'joined '+profile.joinDate)]),
         (followsYou) ? [h('span.label.label-primary', 'Follows You'), ' '] : ''
       ])
     ),
-    (!isYou) ? h('p', followBtn) : '',
+    (!isYou) ? h('p', [followBtn,' ',setnameBtn]) : '',
     h('div.text-muted', [
-      h('p', h('small', [h('strong', 'User\'s Contact ID: '), profile.idStr]))
+      h('small', [h('strong', 'Nickname: '), profile.nickname]),
+      h('br'),
+      h('small', [h('strong', 'Contact ID: '), profile.idStr]),
     ])
   ])
 }

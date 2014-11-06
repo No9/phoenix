@@ -16,6 +16,11 @@ function lookupAll(messages, messageMap, index) {
   return index.map(lookup.bind(null, messages, messageMap))
 }
 
+// helper to render nicknames
+function nick(msg, map) {
+  return map[msg.authorStr] || msg.authorStr
+}
+
 // feed message renderer
 // - `msg`: message object to render
 // - `feedView`: app state object
@@ -90,7 +95,7 @@ function renderMsgShell(content, msg, events, parentMsg, messages, messageMap, r
 
   var replyStr = renderMsgReplies(msg, replies)
   var reactionsStr = renderMsgReactions(replies, nicknameMap)
-  var rebroadcastsStr = renderMsgRebroadcasts(rebroadcasts)  
+  var rebroadcastsStr = renderMsgRebroadcasts(rebroadcasts, nicknameMap)  
 
   var parentHeader
   if (parentMsg) {
@@ -138,14 +143,14 @@ function renderMsgHeader(msg, events, nicknameMap) {
         ' - ',
         util.prettydate(new Date(msg.content.rebroadcasts.timestamp||0), true)
       ]),
-      h('span.repliesto', [' shared by ', comren.userlink(msg.author, msg.authorNickname)]),
+      h('span.repliesto', [' shared by ', comren.userlink(msg.author, nick(msg, nicknameMap))]),
       stopBtnStr
     ])
   }
 
   // normal message
   return h('p', [
-    comren.userlink(msg.author, msg.authorNickname),
+    comren.userlink(msg.author, nick(msg, nicknameMap)),
     h('small.message-ctrls', [
       ' - ',
       comren.a('#/msg/'+msg.idStr, util.prettydate(new Date(msg.timestamp), true), { title: 'View message thread' })
@@ -171,12 +176,12 @@ function renderMsgReactions(replies, nicknameMap) {
       if (!reactMap[react])
         reactMap[react] = []
       if (notYetAdded(reactMap[react], reply))
-        reactMap[react].push({ id: reply.author, nick: reply.authorNickname })
+        reactMap[react].push({ id: reply.author, nick: nick(reply, nicknameMap) })
     }
   })
   function notYetAdded(list, reply) { // helper to remove duplicate reactions by a user
-    var nick = reply.authorNickname
-    return list.filter(function(r) { return r.nick == nick }).length === 0
+    var n = nick(reply, nicknameMap)
+    return list.filter(function(r) { return r.nick == n }).length === 0
   }
   // render the list of reactions
   for (var react in reactMap) {
@@ -200,13 +205,13 @@ function renderMsgReactions(replies, nicknameMap) {
 }
 
 // list of rebroadcasts in the footer of messages
-function renderMsgRebroadcasts(rebroadcasts) {
+function renderMsgRebroadcasts(rebroadcasts, nicknameMap) {
   var rebroadcastsStr = []
   if (rebroadcasts.length) {
     rebroadcasts = onePerAuthor(rebroadcasts)
-    rebroadcastsStr.push(comren.userlink(rebroadcasts[0].author, rebroadcasts[0].authorNickname))
+    rebroadcastsStr.push(comren.userlink(rebroadcasts[0].author, nick(rebroadcasts[0], nicknameMap)))
     if (rebroadcasts.length > 1) {
-      var theOthers = rebroadcasts.slice(1).map(function(r) { return r.authorNickname })
+      var theOthers = rebroadcasts.slice(1).map(function(r) { return nick(r, nicknameMap) })
       rebroadcastsStr.push(h('a', { href: 'javascript:void()', title: theOthers.join(', ') }, ' and ' + theOthers.length + ' others'))
     }
     rebroadcastsStr.push(' shared this.')
@@ -235,7 +240,7 @@ var messageEvent = exports.messageEvent = function(msg, type, text, nicknameMap)
 
   return h('.phoenix-event', [
     h('p.event-body', [
-      comren.userlink(msg.author, msg.authorNickname),
+      comren.userlink(msg.author, nick(msg, nicknameMap)),
       new widgets.Markdown(' ' + text, { inline: true, nicknames: nicknameMap }),
       ' ',
       parentLink
@@ -249,7 +254,7 @@ var messageFollow = exports.messageFollow = function(msg, nicknameMap) {
 
   return h('.phoenix-event', [
     h('p.event-body', [
-      comren.userlink(msg.author, msg.authorNickname),
+      comren.userlink(msg.author, nick(msg, nicknameMap)),
       ' followed ',
       comren.userlink(target, targetNickname)
     ])

@@ -45,16 +45,19 @@ module.exports = function(server) {
 
     // JS
     if (pathStarts('/js/') && pathEnds('.js')) {
+      var filepath = resolve('src/'+path.basename(req.url))
       var browserify = require('browserify')
       var b = browserify({ basedir: resolve('src') })
-      b.add(resolve('src/'+path.basename(req.url)))
+      b.add(filepath)
       return b.bundle(once(function (err, jsStr) {
         if (err) {
-          if (err.toString().indexOf('Cannot find module') !== -1)
-            return next() // not found, try pre-built static
-          res.writeHead(500)
-          res.end(err.toString())
-          console.error(err.toString())
+          fs.stat(filepath, function(statErr) {
+            if (statErr)
+              return next() // file didnt exist found, try pre-built static
+            res.writeHead(500)
+            res.end(err.toString())
+            console.error(err.toString())
+          })
         } else {
           type('application/javascript')
           res.writeHead(200)

@@ -24,8 +24,8 @@ module.exports = function (app, msg, opts) {
   content = markdown.mentionLinks(content, app.names, true)
 
   var len = noHtmlLen(content)
-  if (len > 60 || content.length > 512) {
-    content = content.slice(0, Math.min(60 + (content.length - len), 512)) + '...'
+  if (len > 240 || content.length > 2048) {
+    content = content.slice(0, Math.min(240 + (content.length - len), 2048)) + '...'
   }
 
   var numAttachments = mlib.getLinks(msg, attachmentOpts).length

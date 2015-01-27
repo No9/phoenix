@@ -5,17 +5,22 @@
   .message-replies {
     padding-left: 35px;
   }
-  & .header {
-    font-family: @font-family-sans-serif;
-    h3 {
+  & > .header {
+    h2 {
       margin: 0;
+      font-family: @font-family-sans-serif;      
     }
     p {
       font-size: 12px;
+      border-bottom: 1px solid #ccc;
+      padding: 4px 0 10px;
+      margin-bottom: 20px;
       a {
-        color: #555;
-        font-weight: bold;
+        color: #777;
       }
+    }
+    h4 {
+      color: #555;
     }
   }
   & > .message-replies {

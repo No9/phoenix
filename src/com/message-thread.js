@@ -6,7 +6,6 @@ var messageOpts = { mustRender: false, asTop: false }
 module.exports = function (app, thread, opts) {
   opts = opts || messageOpts
   var r = replies(app, thread)
-  console.log(thread)
   opts.asTop      = !thread.parent // render as top thread if no parent
   opts.mustRender = !!r // always render if there are replies
   var m = com.message(app, thread, opts)

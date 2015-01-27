@@ -62,16 +62,17 @@ function renderPost(app, msg, content) {
   var name = app.names[msg.value.author] || util.shortString(msg.value.author)
   var nameConfidence = com.nameConfidence(msg.value.author, app)
   var header = h('.header',
-    h('h3', content),
+    h('h2', content),
     h('p.text-muted',
-      msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '',
+      com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true),
+      ' (', msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '',
       ', ',
       numAttachments, ' file', (numAttachments !== 1) ? 's' : '',
-      ' - ',
-      'published by ', com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true),
-      ' - ',
+      ') ',
+      h('span', {innerHTML: ' &middot; '}),
       h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
-    )
+    ),
+    h('h4', msg.numThreadReplies||0, ' comments')
   )
 
   // handlers
@@ -114,15 +115,15 @@ function renderReply(app, msg, content) {
     )
   }
 
-  var msgbody = h('.panel-body', content)
-  var msgpanel = h('.panel.panel-default.message',
-    h('.panel-heading',
+  var msgbody = h('.data', content)
+  var msgpanel = h('.message',
+    msgbody,
+    h('.metadata',
       com.userlink(msg.value.author, app.names[msg.value.author]), com.nameConfidence(msg.value.author, app),
       ' ', com.a('#/msg/'+msg.key, util.prettydate(new Date(msg.value.timestamp), true)+repliesStr, { title: 'View message thread' }),
       h('span.in-response-to'), // may be populated by the message page
       h('span', {innerHTML: ' &middot; '}), h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
     ),
-    msgbody,
     msgfooter
   )
 
@@ -131,12 +132,12 @@ function renderReply(app, msg, content) {
   function reply (e) {
     e.preventDefault()
 
-    if (!msgbody.nextSibling || !msgbody.nextSibling.classList || !msgbody.nextSibling.classList.contains('reply-form')) {
+    if (!msgpanel.nextSibling || !msgpanel.nextSibling.classList || !msgpanel.nextSibling.classList.contains('reply-form')) {
       var form = com.postForm(app, msg.key)
-      if (msgbody.nextSibling)
-        msgbody.parentNode.insertBefore(form, msgbody.nextSibling)
+      if (msgpanel.nextSibling)
+        msgpanel.parentNode.insertBefore(form, msgpanel.nextSibling)
       else
-        msgbody.parentNode.appendChild(form)
+        msgpanel.parentNode.appendChild(form)
     }
   }
 

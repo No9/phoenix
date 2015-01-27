@@ -1,7 +1,24 @@
 .message-thread {
   background: #fff;
   margin-bottom: 6px;
+
   .message-replies {
     padding-left: 35px;
+  }
+  & .header {
+    font-family: @font-family-sans-serif;
+    h3 {
+      margin: 0;
+    }
+    p {
+      font-size: 12px;
+      a {
+        color: #555;
+        font-weight: bold;
+      }
+    }
+  }
+  & > .message-replies {
+    padding-left: 0;
   }
 }

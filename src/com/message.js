@@ -5,24 +5,35 @@ var com = require('./index')
 var util = require('../lib/util')
 var markdown = require('../lib/markdown')
 
+var attachmentOpts = { toext: true, rel: 'attachment' }
 module.exports = function (app, msg, opts) {
   var content
   if (opts && opts.raw) {
     content = messageRaw(app, msg)
   } else {
     if (msg.value.content.type == 'post') {
-      var md = msg.value.content.text
-      if ((!opts || !opts.fullLength) && md.length >= 512) {
-        md = md.slice(0, 512) + '... [read more](#/msg/'+msg.key+')'
+      content = msg.value.content.text
+      if ((!opts || !opts.fullLength) && content.length >= 512) {
+        content = content.slice(0, 512) + '... [read more](#/msg/'+msg.key+')'
       }
-      content = h('div', { innerHTML: markdown.block(md, app.names) })
+      if (!opts || !opts.asTop)
+        content = h('div', { innerHTML: markdown.block(content, app.names) })
+      else {
+        content = util.escapePlain(content)
+        content = markdown.emojis(content)
+        content = markdown.mentionLinks(content, app.names)
+        content = com.a('#/msg/'+msg.key, { innerHTML: content })
+      }
     } else {
       if (!opts || !opts.mustRender)
         return ''
       content = messageRaw(app, msg)
     }
-  }    
-  return renderMsgShell(app, msg, content)
+  }
+
+  if (opts && opts.asTop)
+    return renderPost(app, msg, content)    
+  return renderReply(app, msg, content)
 }
 
 function messageRaw (app, msg) {
@@ -43,8 +54,45 @@ function messageRaw (app, msg) {
   return h('.message-raw', { innerHTML: json })
 }
 
+function renderPost(app, msg, content) {
+
+  // markup
+
+  var numAttachments = mlib.getLinks(msg.value.content, attachmentOpts).length
+  var name = app.names[msg.value.author] || util.shortString(msg.value.author)
+  var nameConfidence = com.nameConfidence(msg.value.author, app)
+  var header = h('.header',
+    h('h3', content),
+    h('p.text-muted',
+      msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '',
+      ', ',
+      numAttachments, ' file', (numAttachments !== 1) ? 's' : '',
+      ' - ',
+      'published by ', com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true),
+      ' - ',
+      h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
+    )
+  )
+
+  // handlers
+
+  function reply (e) {
+    e.preventDefault()
+
+    if (!header.nextSibling || !header.nextSibling.classList || !header.nextSibling.classList.contains('reply-form')) {
+      var form = com.postForm(app, msg.key)
+      if (header.nextSibling)
+        header.parentNode.insertBefore(form, header.nextSibling)
+      else
+        header.parentNode.appendChild(form)
+    }
+  }
+
+  return header
+}
+
 var attachmentOpts = { toext: true, rel: 'attachment' }
-function renderMsgShell(app, msg, content) {
+function renderReply(app, msg, content) {
 
   // markup 
 

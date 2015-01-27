@@ -28,23 +28,20 @@ module.exports = function (app, msg, opts) {
     content = content.slice(0, Math.min(60 + (content.length - len), 512)) + '...'
   }
 
-  var replies = ''
-  if (msg.numThreadReplies)
-    replies = h('span', h('small.text-muted', com.icon('comment'), msg.numThreadReplies))
-
-  var attachments = ''
   var numAttachments = mlib.getLinks(msg, attachmentOpts).length
-  if (numAttachments)
-    attachments = h('span', h('small.text-muted', com.icon('paperclip'), numAttachments))
-
   var name = app.names[msg.value.author] || util.shortString(msg.value.author)
   var nameConfidence = com.nameConfidence(msg.value.author, app)
-  return h('tr.message-summary', { onclick: openMsg },
-    h('td.text-right', name, nameConfidence),
-    h('td', attachments),
-    h('td', replies),
-    h('td', h('span', { innerHTML: content })),
-    h('td.text-muted', util.prettydate(new Date(msg.value.timestamp), true))
+  return h('.message-summary', { onclick: openMsg },
+    h('h4', com.a('#/msg/'+msg.key, { innerHTML: content })),
+    h('p.text-muted',
+      h('small.related',
+        com.a('#/msg/'+msg.key, [msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '']),
+        ', ',
+        com.a('#/msg/'+msg.key, [numAttachments, ' file', (numAttachments !== 1) ? 's' : ''])
+      ),
+      ' - ',
+      h('small', 'published by ', com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true))
+    )
   )
 
   // handlers

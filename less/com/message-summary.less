@@ -1,34 +1,16 @@
 .message-summary {
   font-family: @font-family-sans-serif;
-  background: #fafafa;
-  position: relative;
-  height: 36px;
-  overflow: hidden;
-  border: 1px dashed #ccc;
-  border-width: 1px 0;
-  cursor: pointer;
+  color: #555;
+  margin-bottom: 2em;
 
-  &:first-child {
-    border-top-style: solid;
+  h4 {
+    margin-bottom: 0;
   }
-
-  td {
-    padding: 0 10px;
-    border: 1px dashed #ccc;    
+  p {
+    margin-bottom: 0;
   }
-  td:first-child {
-    border-left-color: transparent;
-  }
-  td:nth-child(2), td:nth-child(3) {
-    white-space: pre;
-  }
-  td:last-child {
-    border-right-color: transparent;
-  }
-
-  &:hover {
-    td {
-      background: #eee;
-    }
+  .related a {
+    color: #555;
+    font-weight: bold;
   }
 }

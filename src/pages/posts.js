@@ -10,7 +10,7 @@ module.exports = function (app) {
 
     // markup
 
-    var content = h('table.table.message-feed', msgs.map(function (msg) {
+    var content = h('.message-feed', msgs.map(function (msg) {
       if (msg.value) return com.messageSummary(app, msg, mustRenderOpts)
     }))
 

@@ -5,6 +5,11 @@ var com = require('./index')
 var util = require('../lib/util')
 var markdown = require('../lib/markdown')
 
+function isImage (name) {
+  var ext = name.split('.').slice(-1)[0]
+  return (ext == 'jpg' || ext == 'jpeg' || ext == 'png' || ext == 'bmp' || ext == 'gif' || ext == 'svg')
+}
+
 var attachmentOpts = { toext: true, rel: 'attachment' }, mainAttachmentOpts = { toext: true, rel: 'main' }
 module.exports = function (app, msg, opts) {
 
@@ -32,15 +37,18 @@ module.exports = function (app, msg, opts) {
   var name = app.names[msg.value.author] || util.shortString(msg.value.author)
   var nameConfidence = com.nameConfidence(msg.value.author, app)
 
+  var thumbnail
   var numAttachments = mlib.getLinks(msg.value.content, attachmentOpts).length
   var mainExt = mlib.getLinks(msg.value.content, mainAttachmentOpts)[0]
   if (mainExt) {
     numAttachments++
     mainUrl = (mainExt.name) ? '/msg/'+msg.key+'/ext/'+mainExt.name : '/ext/'+mainExt.ext
-  }
+    thumbnail = isImage(mainExt.name) ? h('img.thumbnail', { src: mainUrl, title: mainExt.name, alt: mainExt.name }) : com.icon('link')
+  } else
+    thumbnail = com.icon('comment')
 
   return h('.message-summary', { onclick: openMsg },
-    h('h4', com.a(mainUrl, { innerHTML: content })),
+    h('h4', com.a(mainUrl, [thumbnail, ' ', h('span', { innerHTML: content })])),
     h('p.text-muted',
       h('small.related',
         com.a('#/msg/'+msg.key, [msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '']),

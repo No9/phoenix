@@ -45,24 +45,25 @@ module.exports = function (app, parent) {
       )
     )
   } else {
-    titleInput = h('input.form-control', { name: 'title', placeholder: '"Check out this cool cat" or "Here\'s a picture of a cat I found," etc', onkeyup: onPostTextChange })
+    titleInput = h('input.form-control', { name: 'title', placeholder: 'Post title', onkeyup: onPostTextChange })
     mainFileInput = h('input.text-control', { type: 'file', multiple: false })
-    textarea = h('textarea', { name: 'post-body', placeholder: 'Optional. Supports markdown, emojis, and @-mentions.', rows: 6, onkeyup: onPostTextChange })
+    textarea = h('textarea', { name: 'post-body', placeholder: 'Post body (optional). Supports markdown, emojis, and @-mentions.', rows: 6, onkeyup: onPostTextChange })
     suggestBox(titleInput, app.suggestOptions)
     suggestBox(textarea, app.suggestOptions)
 
     form = h('form.post-form', { onsubmit: post },
-      h('small.text-muted', 'Title'),
       h('.post-form-title', titleInput),
-      h('small.text-muted', 'Attached files'),
+      h('.post-form-textarea', textarea),
       h('.post-form-files',
         filesList,
-        h('a.btn.btn-primary', { onclick: addFile }, 'Add file'),
         hiddenFilesInput
       ),
-      h('small.text-muted', 'Text'),
-      h('.post-form-textarea', textarea),
-      h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
+      h('p.post-form-btns', 
+        postBtn,
+        h('button.btn.btn-primary', { onclick: cancel }, 'Cancel'),
+        ' | ',
+        h('a.btn.btn-primary', { onclick: addFile }, 'Add file')
+      ),
       h('.preview-wrapper.panel.panel-default.hidden',
         h('.panel-heading', h('small', 'Preview:')),
         h('.panel-body', preview)
@@ -246,8 +247,12 @@ module.exports = function (app, parent) {
   function renderAttachments () {
     filesList.innerHTML = ''
     attachments.forEach(function (file, i) {
-      var mainLink = h('a', { onclick: toggleMainFile(i), href: 'javascript:void(0)', title: 'Set as main file' }, com.icon('star' + (file.isMain ? '' : '-empty')))
-      filesList.appendChild(h('li', mainLink, ' ', file.name, ' ', h('a', { href: 'javascript:void(0)', onclick: removeFile(i) }, 'remove')))
+      var mainLink = h('a', { onclick: toggleMainFile(i), href: 'javascript:void(0)', title: 'Set as main file' }, com.icon((file.isMain ? 'ok-sign' : 'ok-circle')))
+      filesList.appendChild(h('li' + (file.isMain ? '.main' : ''), 
+        mainLink, ' ', file.name, ' ', 
+        h('a', { href: 'javascript:void(0)', onclick: removeFile(i) }, 'remove'),
+        (file.isMain) ? h('span.pull-right', 'main link') : ''
+      ))
     })
   }
 

@@ -29,9 +29,32 @@
     margin-bottom: 1em;
   }
   .post-form-files {
-    margin-bottom: 1em;
+    margin: 1em 0;
     ul {
       margin-top: 10px;
+      list-style: none;
+      padding: 0;
+      border: 1px solid #ccc;
+      &:empty::before {
+        content: 'No files attached.';
+        display: block;
+        font-style: italic;
+        padding: 6px 12px;
+        color: #888;
+      }
+      li {
+        padding: 10px;
+      }
+      li.main {
+        background: @brand-primary;
+        color: #fff;
+        a {
+          color: #fff;
+        }
+      }
+      li:not(:last-child) {
+        border-bottom: 1px solid #ccc;
+      }
     }
   }
   .post-form-textarea {

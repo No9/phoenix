@@ -5,6 +5,15 @@ var com = require('./index')
 var util = require('../lib/util')
 var markdown = require('../lib/markdown')
 
+function extUrl (msg, link) {
+  return (link.name) ? '/msg/'+msg.key+'/ext/'+link.name : '/ext/'+link.ext
+}
+
+function isImage (name) {
+  var ext = name.split('.').slice(-1)[0]
+  return (ext == 'jpg' || ext == 'jpeg' || ext == 'png' || ext == 'bmp' || ext == 'gif' || ext == 'svg')
+}
+
 var attachmentOpts = { toext: true, rel: 'attachment' }, mainAttachmentOpts = { toext: true, rel: 'main' }
 module.exports = function (app, msg, opts) {
   var content
@@ -53,7 +62,7 @@ function messageRaw (app, msg) {
   return h('.message-raw', { innerHTML: json })
 }
 
-function renderPost(app, msg, content) {
+function renderPost (app, msg, content) {
 
   // markup
 
@@ -61,11 +70,12 @@ function renderPost(app, msg, content) {
   var name = app.names[msg.value.author] || util.shortString(msg.value.author)
   var nameConfidence = com.nameConfidence(msg.value.author, app)
 
-  var numAttachments = mlib.getLinks(msg.value.content, attachmentOpts).length
   var mainExt = mlib.getLinks(msg.value.content, mainAttachmentOpts)[0]
+  var attachmentExts = mlib.getLinks(msg.value.content, attachmentOpts)
+  var numAttachments = attachmentExts.length
   if (mainExt) {
     numAttachments++
-    mainUrl = (mainExt.name) ? '/msg/'+msg.key+'/ext/'+mainExt.name : '/ext/'+mainExt.ext
+    mainUrl = extUrl(msg, mainExt)
   }
 
   var header = h('.header',
@@ -79,6 +89,8 @@ function renderPost(app, msg, content) {
       h('span', {innerHTML: ' &middot; '}),
       h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
     ),
+    h('h4', numAttachments, ' files'),
+    renderAttachments(app, msg, mainExt, attachmentExts),
     h('h4', msg.numThreadReplies||0, ' comments')
   )
 
@@ -99,7 +111,24 @@ function renderPost(app, msg, content) {
   return header
 }
 
-function renderReply(app, msg, content) {
+function renderAttachments (app, msg, main, others) {
+  var markup = []
+  if (main) markup.push(render(main))
+  others.forEach(function (other) {
+    markup.push(render(other))
+  })
+  function render (link) {
+    var thumbnail
+    if (link.name && isImage(link.name))
+      thumbnail = h('img', { src: '/ext/'+link.ext, alt: link.name, title: link.name })
+    else
+      thumbnail = com.icon('file')
+    return h('.attachment', com.a(extUrl(msg, link), [thumbnail, link.name||link.ext]))
+  }
+  return h('.attachments', markup)
+}
+
+function renderReply (app, msg, content) {
 
   // markup 
 

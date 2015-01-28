@@ -39,7 +39,7 @@ module.exports = function (app, parent) {
         )
       ),
       h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
-      h('.preview-wrapper.panel.panel-default.hidden',
+      h('.preview-wrapper.panel.panel-default',
         h('.panel-heading', h('small', 'Preview:')),
         h('.panel-body', preview)
       )
@@ -53,20 +53,15 @@ module.exports = function (app, parent) {
 
     form = h('form.post-form', { onsubmit: post },
       h('.post-form-title', titleInput),
-      h('.post-form-textarea', textarea),
-      h('.post-form-files',
-        filesList,
-        hiddenFilesInput
-      ),
       h('p.post-form-btns', 
         postBtn,
         h('a.btn.btn-primary', { onclick: addFile }, 'Add file'),
         ' | ',
         h('a.btn.btn-primary', { onclick: function() { alert('todo') } }, 'Add link')
       ),
-      h('.preview-wrapper.panel.panel-default.hidden',
-        h('.panel-heading', h('small', 'Preview:')),
-        h('.panel-body', preview)
+      h('.post-form-files',
+        filesList,
+        hiddenFilesInput
       )
     )
   }
@@ -82,18 +77,13 @@ module.exports = function (app, parent) {
   // handlers
 
   function onPostTextChange (e) {
-    var v, hasPreview = false
+    var v
     if (parent) {
       preview.innerHTML = markdown.mentionLinks(markdown.block(textarea.value), namesList, true)
-      hasPreview = !!textarea.value
       v = textarea.value
     } else {
-      preview.innerHTML = markdown.mentionLinks('<h2>'+markdown.emojis(titleInput.value)+'</h2>'+markdown.block(textarea.value), namesList, true)
-      hasPreview = !!titleInput.value || !!textarea.value
       v = titleInput.value
     }
-    if (hasPreview) preview.parentNode.parentNode.classList.remove('hidden')
-    else            preview.parentNode.parentNode.classList.add('hidden')
     if (v.trim()) enable()
     else          disable()
   }

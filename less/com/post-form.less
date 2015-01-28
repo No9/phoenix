@@ -1,8 +1,4 @@
 .post-form {
-  &:not(.reply-form) {
-    padding: 10px;
-    margin-bottom: 6px;
-  }
   &.reply-form {
     padding: 15px;
   }
@@ -27,6 +23,10 @@
   }
   .post-form-title {
     margin-bottom: 1em;
+    input {
+      height: 39px;
+      font-size: 18px;
+    }
   }
   .post-form-files {
     margin: 1em 0;
@@ -34,7 +34,7 @@
       margin-top: 10px;
       list-style: none;
       padding: 0;
-      border: 1px solid #ccc;
+      border: 1px solid #ccc;      
       &:empty::before {
         content: 'No files attached.';
         display: block;

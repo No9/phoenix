@@ -137,10 +137,10 @@ function renderReply (app, msg, content) {
   if (nReplies == 1) repliesStr = ' (1 reply)'
   if (nReplies > 1) repliesStr = ' ('+nReplies+' replies)'
 
-  var msgfooter
+  var msgattachments
   var attachments = mlib.getLinks(msg.value.content, attachmentOpts).concat(mlib.getLinks(msg.value.content, mainAttachmentOpts))
   if (attachments.length) {
-    msgfooter = h('.panel-footer',
+    msgattachments = h('.attachments',
       h('ul', attachments.map(function (link) {
         var url = '#/ext/'+link.ext
         if (link.name)
@@ -159,7 +159,7 @@ function renderReply (app, msg, content) {
       h('span.in-response-to'), // may be populated by the message page
       h('span', {innerHTML: ' &middot; '}), h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
     ),
-    msgfooter
+    msgattachments
   )
 
   // handlers

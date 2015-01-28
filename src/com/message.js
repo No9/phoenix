@@ -122,8 +122,8 @@ function renderAttachments (app, msg, main, others) {
     if (link.name && isImage(link.name))
       thumbnail = h('img', { src: '/ext/'+link.ext, alt: link.name, title: link.name })
     else
-      thumbnail = com.icon('file')
-    return h('.attachment', com.a(extUrl(msg, link), [thumbnail, link.name||link.ext]))
+      thumbnail = [com.icon('file'), link.name||link.ext]
+    return h('.attachment', com.a(extUrl(msg, link), thumbnail))
   }
   return h('.attachments', markup)
 }

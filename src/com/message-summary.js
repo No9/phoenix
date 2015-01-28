@@ -47,7 +47,7 @@ module.exports = function (app, msg, opts) {
   } else
     thumbnail = com.icon('comment')
 
-  return h('.message-summary', { onclick: openMsg },
+  return h('.message-summary',
     h('h4', com.a(mainUrl, [thumbnail, ' ', h('span', { innerHTML: content })])),
     h('p.text-muted',
       h('small.related',
@@ -59,21 +59,6 @@ module.exports = function (app, msg, opts) {
       h('small', 'published by ', com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true))
     )
   )
-
-  // handlers
-
-  function openMsg (e) {
-    // abort if clicked on a sub-link
-    var el = e.target
-    while (el) {
-      if (el.tagName == 'A')
-        return
-      el = el.parentNode
-    }
-
-    e.preventDefault()
-    window.location.hash = '#/msg/'+msg.key
-  }
 }
 
 function noHtmlLen (str) {

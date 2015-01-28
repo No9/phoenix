@@ -60,9 +60,9 @@ module.exports = function (app, parent) {
       ),
       h('p.post-form-btns', 
         postBtn,
-        h('button.btn.btn-primary', { onclick: cancel }, 'Cancel'),
+        h('a.btn.btn-primary', { onclick: addFile }, 'Add file'),
         ' | ',
-        h('a.btn.btn-primary', { onclick: addFile }, 'Add file')
+        h('a.btn.btn-primary', { onclick: function() { alert('todo') } }, 'Add link')
       ),
       h('.preview-wrapper.panel.panel-default.hidden',
         h('.panel-heading', h('small', 'Preview:')),

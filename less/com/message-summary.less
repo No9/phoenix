@@ -1,8 +1,9 @@
 .message-summary {
   font-family: @font-family-sans-serif;
   color: #555;
-  height: 60px;
-  margin-bottom: 1em;
+  border-bottom: 1px solid #ccc;
+  &:first-child { border-top: 1px solid #ccc; }
+  padding: 1em 0;
 
   .thumbnail {
     width: 50px;
@@ -16,9 +17,9 @@
   }
   p {
     margin-bottom: 0;
+    line-height: 16px;
   }
   .related a {
     color: #555;
-    font-weight: bold;
   }
 }

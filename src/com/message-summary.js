@@ -50,13 +50,14 @@ module.exports = function (app, msg, opts) {
   return h('.message-summary',
     h('h4', com.a(mainUrl, [thumbnail, ' ', h('span', { innerHTML: content })])),
     h('p.text-muted',
-      h('small.related',
-        com.a('#/msg/'+msg.key, [msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '']),
-        ', ',
-        com.a('#/msg/'+msg.key, [numAttachments, ' file', (numAttachments !== 1) ? 's' : ''])
-      ),
-      ' - ',
       h('small', 'published by ', com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true))
+    ),
+    h('p.text-muted',
+      h('small.related', com.a('#/msg/'+msg.key, [
+        msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '',
+        ', ',        
+        numAttachments, ' file', (numAttachments !== 1) ? 's' : ''
+      ]))
     )
   )
 }

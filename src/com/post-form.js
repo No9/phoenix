@@ -5,6 +5,7 @@ var schemas = require('ssb-msg-schemas')
 var createHash = require('multiblob/util').createHash
 var pull = require('pull-stream')
 var pushable = require('pull-pushable')
+var com = require('./index')
 var util = require('../lib/util')
 var markdown = require('../lib/markdown')
 
@@ -18,28 +19,56 @@ module.exports = function (app, parent) {
   // markup
 
   var preview = h('.preview')
-  var filesInput = h('input.hidden', { type: 'file', multiple: true, onchange: filesAdded })  
+  var hiddenFilesInput = h('input.hidden', { type: 'file', multiple: true, onchange: filesAdded })  
   var filesList = h('ul')
-  var textarea = h('textarea', { name: 'text', placeholder: 'Compose your message', rows: 6, onkeyup: onPostTextChange })
-  suggestBox(textarea, app.suggestOptions) // decorate with suggestbox 
   var postBtn = h('button.btn.btn-primary.btn-strong.pull-right', { disabled: true }, 'Post')
+  var form, textarea, titleInput, mainFileInput
 
-  var form = h('form.post-form' + ((!!parent) ? '.reply-form' : ''), { onsubmit: post },
-    h('small.text-muted', 'All posts are public. Markdown, @-mentions, and emojis are supported.'),
-    h('div',
-      h('.post-form-textarea', textarea),
-      h('.post-form-attachments',
-        filesList,
-        h('a', { href: '#', onclick: addFile }, 'Click here to add an attachment'),
-        filesInput
+  if (parent) {
+    textarea = h('textarea', { name: 'post-body', placeholder: 'Compose your message', rows: 6, onkeyup: onPostTextChange })
+    suggestBox(textarea, app.suggestOptions)
+
+    form = h('form.post-form.reply-form', { onsubmit: post },
+      h('small.text-muted', 'All posts are public. Markdown, @-mentions, and emojis are supported.'),
+      h('div',
+        h('.post-form-textarea.with-attachments', textarea),
+        h('.post-form-attachments',
+          filesList,
+          h('a', { href: 'javascript:void(0)', onclick: addFile }, 'Click here to add an attachment'),
+          hiddenFilesInput
+        )
+      ),
+      h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
+      h('.preview-wrapper.panel.panel-default.hidden',
+        h('.panel-heading', h('small', 'Preview:')),
+        h('.panel-body', preview)
       )
-    ),
-    h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
-    h('.preview-wrapper.panel.panel-default',
-      h('.panel-heading', h('small', 'Preview:')),
-      h('.panel-body', preview)
     )
-  )
+  } else {
+    titleInput = h('input.form-control', { name: 'title', placeholder: '"Check out this cool cat" or "Here\'s a picture of a cat I found," etc', onkeyup: onPostTextChange })
+    mainFileInput = h('input.text-control', { type: 'file', multiple: false })
+    textarea = h('textarea', { name: 'post-body', placeholder: 'Optional. Supports markdown, emojis, and @-mentions.', rows: 6, onkeyup: onPostTextChange })
+    suggestBox(titleInput, app.suggestOptions)
+    suggestBox(textarea, app.suggestOptions)
+
+    form = h('form.post-form', { onsubmit: post },
+      h('small.text-muted', 'Title'),
+      h('.post-form-title', titleInput),
+      h('small.text-muted', 'Attached files'),
+      h('.post-form-files',
+        filesList,
+        h('a.btn.btn-primary', { onclick: addFile }, 'Add file'),
+        hiddenFilesInput
+      ),
+      h('small.text-muted', 'Text'),
+      h('.post-form-textarea', textarea),
+      h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
+      h('.preview-wrapper.panel.panel-default.hidden',
+        h('.panel-heading', h('small', 'Preview:')),
+        h('.panel-body', preview)
+      )
+    )
+  }
 
   function disable () {
     postBtn.setAttribute('disabled', true)
@@ -52,17 +81,26 @@ module.exports = function (app, parent) {
   // handlers
 
   function onPostTextChange (e) {
-    preview.innerHTML = markdown.mentionLinks(markdown.block(textarea.value), namesList, true)
-    if (textarea.value.trim())
-      enable()
-    else
-      disable()
+    var v, hasPreview = false
+    if (parent) {
+      preview.innerHTML = markdown.mentionLinks(markdown.block(textarea.value), namesList, true)
+      hasPreview = !!textarea.value
+      v = textarea.value
+    } else {
+      preview.innerHTML = markdown.mentionLinks('<h2>'+markdown.emojis(titleInput.value)+'</h2>'+markdown.block(textarea.value), namesList, true)
+      hasPreview = !!titleInput.value || !!textarea.value
+      v = titleInput.value
+    }
+    if (hasPreview) preview.parentNode.parentNode.classList.remove('hidden')
+    else            preview.parentNode.parentNode.classList.add('hidden')
+    if (v.trim()) enable()
+    else          disable()
   }
 
   function post (e) {
     e.preventDefault()
 
-    var text = textarea.value
+    var text = (!parent) ? titleInput.value : textarea.value
     if (!text.trim())
       return
 
@@ -117,7 +155,7 @@ module.exports = function (app, parent) {
 
   function addFile (e) {
     e.preventDefault()
-    filesInput.click() // trigger file-selector
+    hiddenFilesInput.click() // trigger file-selector
   }
 
   function removeFile (index) {
@@ -129,9 +167,24 @@ module.exports = function (app, parent) {
   }
 
   function filesAdded (e) {
-    for (var i=0; i < filesInput.files.length; i++)
-      attachments.push(filesInput.files[i])
+    var wasEmpty = !attachments.length
+    for (var i=0; i < hiddenFilesInput.files.length; i++)
+      attachments.push(hiddenFilesInput.files[i])
+    if (wasEmpty)
+      attachments[0].isMain = true
     renderAttachments()
+  }
+
+  function toggleMainFile (index) {
+    return function (e) {
+      e.preventDefault()
+      attachments[index].isMain = !attachments[index].isMain
+      for (var i = 0; i < attachments.length; i++) {
+        if (i !== index)
+          attachments[i].isMain = false
+      }
+      renderAttachments()
+    }
   }
 
   function uploadFiles (cb) {
@@ -141,7 +194,7 @@ module.exports = function (app, parent) {
 
     app.setStatus('info', 'Uploading ('+attachments.length+' files left)...')
     attachments.forEach(function (file) {
-      var link = { rel: 'attachment', ext: null, name: null, size: null }
+      var link = { rel: (file.isMain) ? 'main' : 'attachment', ext: null, name: null, size: null }
       links.push(link)
 
       // read file
@@ -193,7 +246,8 @@ module.exports = function (app, parent) {
   function renderAttachments () {
     filesList.innerHTML = ''
     attachments.forEach(function (file, i) {
-      filesList.appendChild(h('li', file.name, ' ', h('a', { href: '#', onclick: removeFile(i) }, 'remove')))
+      var mainLink = h('a', { onclick: toggleMainFile(i), href: 'javascript:void(0)', title: 'Set as main file' }, com.icon('star' + (file.isMain ? '' : '-empty')))
+      filesList.appendChild(h('li', mainLink, ' ', file.name, ' ', h('a', { href: 'javascript:void(0)', onclick: removeFile(i) }, 'remove')))
     })
   }
 

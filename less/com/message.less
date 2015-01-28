@@ -1,12 +1,12 @@
 .message {
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   
   .metadata {
-    border-top: 1px dashed #ccc;
-    background: #fafafa;
+    background: #f5f5f5;
     padding: 10px 16px;
     font-size: 12px;
+    border-top: 1px solid #aaa;
 
     a:not(.user-link) {
       color: #808080;
@@ -17,11 +17,16 @@
     font-family: @font-family-sans-serif;
     padding: 10px 16px;
 
-    & > div > :first-child {
-      margin-top: 0;
-    }
-    & > div > :last-child {
-      margin-bottom: 0;
+    & > div {
+      & > :first-child {
+        margin-top: 0;
+      }
+      & > :last-child {
+        margin-bottom: 0;
+      }
+      & > ul {
+        padding-left: 18px;
+      }
     }
 
     .message-raw {

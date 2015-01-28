@@ -9,7 +9,8 @@ module.exports = function (app, thread, opts) {
   opts.asTop      = !thread.parent // render as top thread if no parent
   opts.mustRender = !!r // always render if there are replies
   var m = com.message(app, thread, opts)
-  return (m) ? h('.message-thread', [m, r]) : ''
+  var p = (!!thread.parent) ? h('p.parent', com.a('#/msg/'+thread.parent, '^ parent post')) : ''
+  return (m) ? h('.message-thread', [p, m, r]) : ''
 }
 
 function replies (app, thread) {

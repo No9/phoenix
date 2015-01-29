@@ -154,12 +154,12 @@ function setPendingMessages (n) {
   this.pendingMessages = n
   try {
     if (n) {
-      document.title = '('+n+') secure scuttlebutt'
+      document.title = '('+n+') scuttlebutt'
       document.getElementById('get-latest').classList.remove('hidden')
       document.querySelector('#get-latest .btn').textContent = 'Get Latest ('+n+')'
     }
     else {
-      document.title = 'secure scuttlebutt'
+      document.title = 'scuttlebutt'
       document.getElementById('get-latest').classList.add('hidden')
       document.querySelector('#get-latest .btn').textContent = 'Get Latest'
     }

@@ -42,3 +42,12 @@ exports.escapePlain = function(str) {
 exports.shortString = function(str) {
   return str.slice(0, 6) + '...'
 }
+
+var dataSizes = ['Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb']
+exports.bytesHuman = function (nBytes) {
+  var str = nBytes + 'b'
+  for (var i = 0, nApprox = nBytes / 1024; nApprox > 1; nApprox /= 1024, i++) {
+    str = nApprox.toFixed(2) + dataSizes[i]
+  }
+  return str
+}

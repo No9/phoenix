@@ -34,22 +34,28 @@
       margin-top: 10px;
       list-style: none;
       padding: 0;
-      border: 1px solid #ccc;      
       &:empty {
         border: 0;
       }
       li {
         padding: 10px;
+        border-top: 1px solid #ccc;
       }
       li.main {
-        background: @brand-primary;
-        color: #fff;
-        a {
-          color: #fff;
+        border: 1px solid @brand-primary;
+        border-bottom-width: 0;
+        background: #fafafa;
+        .btn-primary:not(:hover) {
+          background: transparent;
+          border-color: transparent;
         }
-      }
-      li:not(:last-child) {
-        border-bottom: 1px solid #ccc;
+ 
+        & + li {
+          border-top-color: @brand-primary;
+        }
+        &:last-child {
+          border-bottom-width: 1px;
+        }
       }
     }
   }

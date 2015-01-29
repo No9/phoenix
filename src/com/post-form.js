@@ -55,9 +55,7 @@ module.exports = function (app, parent) {
       h('.post-form-title', titleInput),
       h('p.post-form-btns', 
         postBtn,
-        h('a.btn.btn-primary', { onclick: addFile }, 'Add file'),
-        ' | ',
-        h('a.btn.btn-primary', { onclick: function() { alert('todo') } }, 'Add link')
+        h('a.btn.btn-primary', { onclick: addFile }, 'Add file')
       ),
       h('.post-form-files',
         filesList,
@@ -152,6 +150,7 @@ module.exports = function (app, parent) {
   function removeFile (index) {
     return function (e) {
       e.preventDefault()
+      e.stopPropagation()
       attachments.splice(index, 1)
       renderAttachments()
     }
@@ -237,11 +236,10 @@ module.exports = function (app, parent) {
   function renderAttachments () {
     filesList.innerHTML = ''
     attachments.forEach(function (file, i) {
-      var mainLink = h('a', { onclick: toggleMainFile(i), href: 'javascript:void(0)', title: 'Set as main file' }, com.icon((file.isMain ? 'ok-sign' : 'ok-circle')))
-      filesList.appendChild(h('li' + (file.isMain ? '.main' : ''), 
-        mainLink, ' ', file.name, ' ', 
-        h('a', { href: 'javascript:void(0)', onclick: removeFile(i) }, 'remove'),
-        (file.isMain) ? h('span.pull-right', 'main link') : ''
+      filesList.appendChild(h('li' + (file.isMain ? '.main' : ''), { onclick: toggleMainFile(i) },
+        h('a.btn.btn-primary', { href: 'javascript:void(0)', onclick: removeFile(i) }, com.icon('remove')),
+        ' ', file.name, ' (', h('span.text-muted', util.bytesHuman(file.size)), ')',
+        (file.isMain ? h('small.text-primary.pull-right', 'main') : '')
       ))
     })
   }

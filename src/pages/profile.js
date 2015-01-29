@@ -5,6 +5,11 @@ var schemas = require('ssb-msg-schemas')
 var com = require('../com')
 var util = require('../lib/util')
 
+//var replyOpts = { tomsg: true, rel: 'replies-to' }
+function isReply (msg) {
+  return !!msg.parent//mlib.getLinks(msg.value.content, replyOpts).length > 0
+}
+
 module.exports = function (app) {
   var pid = app.page.param
   var done = multicb({ pluck: 1 })
@@ -29,7 +34,7 @@ module.exports = function (app) {
     if (profile) {
       if (msgs.length)
         msgfeed = h('table.table.message-feed', msgs.map(function (msg) {
-          if (msg.value) return com.messageSummary(app, msg)
+          if (msg.value) return renderMessage(msg)
         }))
       else
         msgfeed = h('div', { style: 'display: inline-block' }, com.panel('', 'No posts have been published by this user yet.'))
@@ -44,6 +49,12 @@ module.exports = function (app) {
           )
         )
       )
+    }
+
+    function renderMessage (msg) {
+      if (isReply(msg))
+        return com.messageThread(app, msg, { noReplies: true })
+      return com.messageSummary(app, msg)
     }
 
     // name confidence controls

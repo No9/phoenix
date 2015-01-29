@@ -8,22 +8,43 @@
   & > .header {
     h2 {
       margin: 0;
-      font-family: @font-family-sans-serif;      
+      font-family: @font-family-sans-serif;
     }
     p {
       font-size: 12px;
-      border-bottom: 1px solid #ccc;
       padding: 4px 0 10px;
-      margin-bottom: 20px;
       a {
         color: #777;
       }
     }
-    h4 {
-      color: #555;
+    margin-bottom: 20px;
+    &.no-post-body {
+      border-bottom: 1px solid #ccc;
     }
   }
-  & .header ~ .message-replies {
+  & > .post-body {
+    font-family: @font-family-sans-serif;
+    margin-top: -20px;
+    margin-bottom: 20px;
+    padding: 10px 16px;
+    
+    border: 1px solid #aaa;
+    border-radius: 5px;
+
+    & > :first-child {
+      margin-top: 0;
+    }
+    & > :last-child {
+      margin-bottom: 0;
+    }
+    & > ul {
+      padding-left: 18px;
+    }
+  }
+  & > h4 {
+    color: #555;
+  }
+  & > .message-replies {
     padding-left: 0;
   }
   .attachments {

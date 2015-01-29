@@ -222,7 +222,7 @@ module.exports = function (app, parent) {
         hasher,
         pull.map(function (buf) { 
           if (typeof buf == 'string')
-            return buf
+            return btoa(buf)
           return new Buffer(new Uint8Array(buf)).toString('base64')
         }),
         app.ssb.blobs.add(function (err) {

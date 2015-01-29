@@ -1,6 +1,7 @@
 'use strict'
 var h = require('hyperscript')
 var mlib = require('ssb-msgs')
+var pull = require('pull-stream')
 var com = require('./index')
 var util = require('../lib/util')
 var markdown = require('../lib/markdown')
@@ -14,7 +15,9 @@ function isImage (name) {
   return (ext == 'jpg' || ext == 'jpeg' || ext == 'png' || ext == 'bmp' || ext == 'gif' || ext == 'svg')
 }
 
-var attachmentOpts = { toext: true, rel: 'attachment' }, mainAttachmentOpts = { toext: true, rel: 'main' }
+var attachmentOpts   = { toext: true, rel: 'attachment' },
+  mainAttachmentOpts = { toext: true, rel: 'main' },
+  postBodyOpts       = { toext: true, rel: 'post-body' }
 module.exports = function (app, msg, opts) {
   var content
   if (opts && opts.raw) {
@@ -78,37 +81,50 @@ function renderPost (app, msg, content) {
     mainUrl = extUrl(msg, mainExt)
   }
 
-  var header = h('.header',
-    h('h2', com.a(mainUrl, { innerHTML: content })),
-    h('p.text-muted',
-      com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true),
-      ' (', msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '',
-      ', ',
-      numAttachments, ' file', (numAttachments !== 1) ? 's' : '',
-      ') ',
-      h('span', {innerHTML: ' &middot; '}),
-      h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
+  var postBody
+  var postBodyExt = mlib.getLinks(msg.value.content, postBodyOpts)[0]  
+  if (postBodyExt) {
+    postBody = h('div.post-body')
+    pull(app.ssb.blobs.get(postBodyExt.ext), pull.collect(function (err, text) {
+      if (text && typeof text[0] == 'string') {
+        postBody.innerHTML = markdown.block(atob(text[0]), app.names)
+      }
+    }))
+  }
+
+  var replySpace = h('div')
+  var post = [
+    h('.header' + (!postBodyExt ? '.no-post-body' : ''),
+      h('h2', com.a(mainUrl, { innerHTML: content })),
+      h('p.text-muted',
+        com.userlink(msg.value.author, name), nameConfidence, ' ', util.prettydate(new Date(msg.value.timestamp), true),
+        ' (', msg.numThreadReplies||0, ' comment', (msg.numThreadReplies !== 1) ? 's' : '',
+        ', ',
+        numAttachments, ' file', (numAttachments !== 1) ? 's' : '',
+        ') ',
+        h('span', {innerHTML: ' &middot; '}),
+        h('a', { title: 'Reply', href: '#', onclick: reply }, 'reply')
+      )
     ),
+    postBody,
+    replySpace,
     h('h4', numAttachments, ' files'),
     renderAttachments(app, msg, mainExt, attachmentExts),
     h('h4', msg.numThreadReplies||0, ' comments')
-  )
+  ]
 
   // handlers
 
   function reply (e) {
     e.preventDefault()
 
-    if (!header.nextSibling || !header.nextSibling.classList || !header.nextSibling.classList.contains('reply-form')) {
+    if (!replySpace.childNodes.length) {
       var form = com.postForm(app, msg.key)
-      if (header.nextSibling)
-        header.parentNode.insertBefore(form, header.nextSibling)
-      else
-        header.parentNode.appendChild(form)
+      replySpace.appendChild(form)
     }
   }
 
-  return header
+  return post
 }
 
 function renderAttachments (app, msg, main, others) {

@@ -47,9 +47,7 @@ module.exports = function(server) {
 
         // try to find an ext link with the given name
         var links = mlib.getLinks(msg.content, { toext: true })
-        console.log(links)
         for (var i=0; i < links.length; i++) {
-          console.log(links[i].name === name, links[i].name, name)
           if (links[i].name === name) {
             return pull(
               server.blobs.get(links[i].ext),

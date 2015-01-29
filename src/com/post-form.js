@@ -39,7 +39,7 @@ module.exports = function (app, parent) {
         )
       ),
       h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
-      h('.preview-wrapper.panel.panel-default',
+      h('.preview-wrapper.panel.panel-default.hidden',
         h('.panel-heading', h('small', 'Preview:')),
         h('.panel-body', preview)
       )
@@ -53,6 +53,11 @@ module.exports = function (app, parent) {
 
     form = h('form.post-form', { onsubmit: post },
       h('.post-form-title', titleInput),
+      h('.post-form-textarea', textarea),
+      h('.preview-wrapper.panel.panel-default.hidden',
+        h('.panel-heading', h('small', 'Preview:')),
+        h('.panel-body', preview)
+      ),
       h('p.post-form-btns', 
         postBtn,
         h('a.btn.btn-primary', { onclick: addFile }, 'Add file')
@@ -75,15 +80,15 @@ module.exports = function (app, parent) {
   // handlers
 
   function onPostTextChange (e) {
-    var v
-    if (parent) {
-      preview.innerHTML = markdown.mentionLinks(markdown.block(textarea.value), namesList, true)
-      v = textarea.value
-    } else {
-      v = titleInput.value
-    }
+    var v = (parent) ? textarea.value : titleInput.value
     if (v.trim()) enable()
     else          disable()
+
+    if (textarea.value.trim()) {
+      preview.innerHTML = markdown.mentionLinks(markdown.block(textarea.value), namesList, true)
+      preview.parentNode.parentNode.classList.remove('hidden')
+    } else
+      preview.parentNode.parentNode.classList.add('hidden')
   }
 
   function post (e) {
@@ -178,16 +183,23 @@ module.exports = function (app, parent) {
   }
 
   function uploadFiles (cb) {
-    var links = []
-    if (attachments.length === 0)
+    var links = [], hasPostBody = (!parent && textarea.value)
+    if (attachments.length === 0 && !hasPostBody)
       return cb(null, links)
 
     app.setStatus('info', 'Uploading ('+attachments.length+' files left)...')
     attachments.forEach(function (file) {
-      var link = { rel: (file.isMain) ? 'main' : 'attachment', ext: null, name: null, size: null }
+      var link = { rel: (file.isMain) ? 'main' : 'attachment', ext: null, name: file.name, size: file.size }
       links.push(link)
+      addBlob(readFile(file), link)
+    })
+    if (hasPostBody) {
+      var link = { rel: 'post-body', ext: null, name: 'post-body.md', size: util.stringByteLength(textarea.value) }
+      links.push(link)
+      addBlob(pull.values([textarea.value]), link)
+    }
 
-      // read file
+    function readFile (file) {
       var ps = pushable()
       var reader = new FileReader()
       reader.onload = function () {
@@ -199,25 +211,32 @@ module.exports = function (app, parent) {
         ps.end(new Error('Failed to upload '+file.name))
       }
       reader.readAsArrayBuffer(file)
+      return ps
+    }
 
+    function addBlob (source, link) {
       // hash and store
       var hasher = createHash()
       pull(
-        ps,
+        source,
         hasher,
-        pull.map(function (buf) { return new Buffer(new Uint8Array(buf)).toString('base64') }),
+        pull.map(function (buf) { 
+          if (typeof buf == 'string')
+            return buf
+          return new Buffer(new Uint8Array(buf)).toString('base64')
+        }),
         app.ssb.blobs.add(function (err) {
           if(err) return next(err)
-          link.name = file.name
           link.ext  = hasher.digest
-          link.size = file.size || hasher.size
+          link.size = link.size || hasher.size
           next()
         })
       )
-    })
+    }
 
-    var n = 0
+    var n
     function next (err) {
+      n = n || 0
       if (n < 0) return
       if (err) {
         n = -1
@@ -225,11 +244,11 @@ module.exports = function (app, parent) {
         return cb (err)
       }
       n++
-      if (n === attachments.length) {
+      if (n === links.length) {
         app.setStatus(null)
         cb(null, links)
       } else
-        app.setStatus('info', 'Uploading ('+(attachments.length-n)+' files left)...')
+        app.setStatus('info', 'Uploading ('+(links.length-n)+' files left)...')
     }
   }
 

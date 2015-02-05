@@ -24,7 +24,7 @@ module.exports = function (app, parent, opts) {
   var filesList = h('ul')
   var textarea = h('textarea', { name: 'text', placeholder: 'Compose your message', rows: 6, onkeyup: onPostTextChange })
   suggestBox(textarea, app.suggestOptions)
-  textarea.value = (opts && opts.value) ? opts.value : ''
+  textarea.value = localStorage.postFormDraft || ((opts && opts.value) ? opts.value : '')
   var postBtn = h('button.btn.btn-primary.btn-strong.pull-right', { disabled: true }, 'Post to All')
 
   var form = h('form.post-form' + ((!!parent) ? '.reply-form' : ''), { onsubmit: post },
@@ -65,6 +65,7 @@ module.exports = function (app, parent, opts) {
   // handlers
 
   function onPostTextChange (e) {
+    localStorage.postFormDraft = textarea.value
     preview.innerHTML = mentions.preview(markdown.block(textarea.value), namesList)
     if (textarea.value.trim())
       enable()

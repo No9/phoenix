@@ -198,7 +198,7 @@ module.exports = function (app) {
 
   app.setPage('help', h('.row',
     h('.col-xs-2.col-md-1', com.sidenav(app)),
-    h('.col-xs-7', content),
+    h('.col-xs-7.overflow-scroll', content),
     h('.col-xs-3.col-md-4', 
       h('ul.nav.nav-pills.nav-stacked', helpnav('#/help/'+(app.page.param||'intro'), [
         ['#/help/intro', 'About'],

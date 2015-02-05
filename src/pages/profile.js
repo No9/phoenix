@@ -132,35 +132,37 @@ module.exports = function (app) {
     var loadMoreBtn = (msgs.length === 30) ? h('p', h('button.btn.btn-primary.btn-block', { onclick: loadMore, style: 'margin-bottom: 24px' }, 'Load More')) : ''    
     app.setPage('profile', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
-      h('.col-xs-8',
-        nameTrustDlg,
-        h('p', composeBtn),
-        com.postFormExpandable(app, composeBtn, null, { value: '@'+(app.names[pid] || pid)+' ' }),
-        msgfeed,
-        loadMoreBtn
-      ),
-      h('.col-xs-2.col-md-3.profile-controls',
-        h('.section',
-          h('h2', name, com.nameConfidence(pid, app), renameBtn),
-          h('p.text-muted', 'joined '+joinDate)
+      h('.col-xs-10.col-md-11.overflow-scroll',
+        h('.col-xs-9',
+          nameTrustDlg,
+          h('p', composeBtn),
+          com.postFormExpandable(app, composeBtn, null, { value: '@'+(app.names[pid] || pid)+' ' }),
+          msgfeed,
+          loadMoreBtn
         ),
-        h('.section', h('p', followBtn), h('p', trustBtn), h('p', flagBtn)),
-        (givenNames.length)
-          ? h('.section',
-            h('small', h('strong', 'Given names '), com.a('#/help/names', '?')), 
-            h('br'),
-            h('ul.list-unstyled', givenNames)
+        h('.col-xs-3.profile-controls',
+          h('.section',
+            h('h2', name, com.nameConfidence(pid, app), renameBtn),
+            h('p.text-muted', 'joined '+joinDate)
+          ),
+          h('.section', h('p', followBtn), h('p', trustBtn), h('p', flagBtn)),
+          (givenNames.length)
+            ? h('.section',
+              h('small', h('strong', 'Given names '), com.a('#/help/names', '?')), 
+              h('br'),
+              h('ul.list-unstyled', givenNames)
+            )
+            : '',
+          trusters.length  ? h('.section', h('small', h('strong.text-success', com.icon('ok'), ' Trusted by'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', trusters)) : '',
+          flaggers.length  ? h('.section', h('small', h('strong.text-danger', com.icon('flag'), ' Flagged by'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', flaggers)) : '',
+          follows.length   ? h('.section', h('small', h('strong', 'Follows'), ' ', com.a('#/help/contacts', '?')), h('br'), h('ul.list-unstyled', follows)) : '',
+          followers.length ? h('.section', h('small', h('strong', 'Followed by'), ' ', com.a('#/help/contacts', '?')), h('br'), h('ul.list-unstyled', followers)) : '',
+          trusts.length    ? h('.section', h('small', h('strong', 'Trusts'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', trusts)) : '',
+          flags.length     ? h('.section', h('small', h('strong', 'Flags'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', flags)) : '',
+          h('.section',
+            h('small', h('strong', 'Emoji fingerprint '), com.a('#/help/trust', '?')),
+            h('div', { innerHTML: com.toEmoji(pid) })
           )
-          : '',
-        trusters.length  ? h('.section', h('small', h('strong.text-success', com.icon('ok'), ' Trusted by'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', trusters)) : '',
-        flaggers.length  ? h('.section', h('small', h('strong.text-danger', com.icon('flag'), ' Flagged by'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', flaggers)) : '',
-        follows.length   ? h('.section', h('small', h('strong', 'Follows'), ' ', com.a('#/help/contacts', '?')), h('br'), h('ul.list-unstyled', follows)) : '',
-        followers.length ? h('.section', h('small', h('strong', 'Followed by'), ' ', com.a('#/help/contacts', '?')), h('br'), h('ul.list-unstyled', followers)) : '',
-        trusts.length    ? h('.section', h('small', h('strong', 'Trusts'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', trusts)) : '',
-        flags.length     ? h('.section', h('small', h('strong', 'Flags'), ' ', com.a('#/help/trust', '?')), h('br'), h('ul.list-unstyled', flags)) : '',
-        h('.section',
-          h('small', h('strong', 'Emoji fingerprint '), com.a('#/help/trust', '?')),
-          h('div', { innerHTML: com.toEmoji(pid) })
         )
       )
     ))

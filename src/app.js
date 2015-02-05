@@ -28,6 +28,7 @@ module.exports = function (ssb) {
 
   // page behaviors
 
+  window.addEventListener('resize', resizePage.bind(app))
   window.addEventListener('hashchange', function() { app.refreshPage() })
   document.body.addEventListener('click', onClick(app))
 
@@ -85,6 +86,12 @@ function setupRpcConnection () {
     if (event.type == 'post' || event.type == 'notification')
       app.setPendingMessages(app.pendingMessages + 1)
   }))
+}
+
+function resizePage (e) {
+  Array.prototype.forEach.call(document.querySelectorAll('.overflow-scroll'), function (el) {
+    el.style.height = (window.innerHeight - 60) + 'px'
+  })
 }
 
 function refreshPage (e) {
@@ -283,4 +290,5 @@ function setPage (name, page, opts) {
     el.appendChild(com.page(this, name, page))
   else
     el.appendChild(h('#page.container-fluid.'+name+'-page', page))
+  resizePage()
 }

@@ -5,16 +5,29 @@ module.exports = function (app, toggleBtn, parent, opts) {
   var initBtnText = toggleBtn.textContent
   var form = postForm(app, parent, opts)
   var formContainer = h('.post-form-container', form)
-  formContainer.classList.add('collapsed')
+
+  if (localStorage.postFormExpanded != 1)
+    formContainer.classList.add('collapsed')
+  update()
+
   toggleBtn.onclick = function (e) {
-    e.preventDefault()
+    e && e.preventDefault()
     formContainer.classList.toggle('collapsed')
-    toggleBtn.classList.toggle('btn-strong')
-    if (formContainer.classList.contains('collapsed'))
+    update()
+  }
+  
+  function update () {
+    if (formContainer.classList.contains('collapsed')) {
       toggleBtn.textContent = initBtnText
+      toggleBtn.classList.add('btn-strong')
+      localStorage.postFormExpanded = 0
+      localStorage.postFormDraft = form.querySelector('textarea').value = ''
+    }
     else {
       toggleBtn.textContent = 'Cancel'
+      toggleBtn.classList.remove('btn-strong')
       form.querySelector('textarea').focus()
+      localStorage.postFormExpanded = 1
     }
   }
   return h('.post-form-expandable', formContainer)

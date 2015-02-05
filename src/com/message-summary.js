@@ -6,21 +6,13 @@ var util = require('../lib/util')
 var markdown = require('../lib/markdown')
 var mentions = require('../lib/mentions')
 
-var mentionOpts = { tofeed: true, rel: 'mentions' }
 var attachmentOpts = { toext: true, rel: 'attachment' }
 module.exports = function (app, msg, opts) {
 
   // private-msg filter
 
-  if (msg.value.content.private && msg.value.author != app.myid) {
-    var i, mentionLinks = mlib.getLinks(msg.value.content, mentionOpts)
-    for (i = 0; i < mentionLinks.length; i++) {
-      if (mentionLinks[i].feed == app.myid)
-        break
-    }
-    if (i == mentionLinks.length)
-      return ''
-  }
+  if (!app.isMsgForMe(msg))
+    return ''
 
   // markup
 

@@ -4,6 +4,7 @@ var multicb    = require('multicb')
 var router     = require('phoenix-router')
 var pull       = require('pull-stream')
 var schemas    = require('ssb-msg-schemas')
+var mlib       = require('ssb-msgs')
 var com        = require('./com')
 var pages      = require('./pages')
 var util       = require('./lib/util')
@@ -36,6 +37,7 @@ module.exports = function (ssb) {
   app.setupRpcConnection = setupRpcConnection.bind(app)
   app.refreshPage        = refreshPage.bind(app)
   app.getOtherNames      = getOtherNames.bind(app)
+  app.isMsgForMe         = isMsgForMe.bind(app)
   app.showUserId         = showUserId.bind(app)
   app.setPendingMessages = setPendingMessages.bind(app)
   app.setStatus          = setStatus.bind(app)
@@ -173,6 +175,19 @@ function getOtherNames (profile) {
     add(profile.assignedBy[k].name)
   }
   return names
+}
+
+var mentionOpts = { tofeed: true, rel: 'mentions' }
+function isMsgForMe (msg) {
+  if (msg.value.content.private && msg.value.author != this.myid) {
+    var i, mentionLinks = mlib.getLinks(msg.value.content, mentionOpts)
+    for (i = 0; i < mentionLinks.length; i++) {
+      if (mentionLinks[i].feed === this.myid)
+        return true
+    }
+    return false
+  }
+  return true
 }
 
 function showUserId () { 

@@ -12,8 +12,10 @@ module.exports = function (app, toggleBtn, parent, opts) {
     toggleBtn.classList.toggle('btn-strong')
     if (formContainer.classList.contains('collapsed'))
       toggleBtn.textContent = initBtnText
-    else
+    else {
       toggleBtn.textContent = 'Cancel'
+      form.querySelector('textarea').focus()
+    }
   }
   return h('.post-form-expandable', formContainer)
 }

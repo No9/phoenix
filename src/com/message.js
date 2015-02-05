@@ -8,6 +8,8 @@ var mentions = require('../lib/mentions')
 
 module.exports = function (app, msg, opts) {
   var content
+  if (!app.isMsgForMe(msg))
+    return
   if (opts && opts.raw) {
     content = messageRaw(app, msg)
   } else {

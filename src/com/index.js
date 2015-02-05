@@ -60,6 +60,7 @@ exports.header = function (app) {
     h('.container-fluid', [
       h('.navbar-header', h('a.navbar-brand', { href: '#/' }, 'secure scuttlebutt')),
       h('ul.nav.navbar-nav', [
+        //h('li', h('a.btn.btn-primary.btn-strong', { href: '#/compose' }, 'compose')),
         h('li.hidden-xs', a('#/address-book', 'address book')),
         h('li.hidden-xs', a('#/profile/' + app.myid, app.names[app.myid]))
       ]),
@@ -86,8 +87,6 @@ exports.sidenav = function (app) {
   ]
 
   return h('.side-nav', [
-    h('p', h('a.btn.btn-primary.btn-strong', { href: '#/compose' }, 'new post')),
-    h('hr'),
     pages.map(function (page) {
       if (page == '-')
         return h('hr')
@@ -139,3 +138,4 @@ exports.messageThread = require('./message-thread')
 exports.messageSummary = require('./message-summary')
 exports.peers = require('./peers')
 exports.postForm = require('./post-form')
+exports.postFormExpandable = require('./post-form-expandable')

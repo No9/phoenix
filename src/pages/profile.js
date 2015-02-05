@@ -128,10 +128,17 @@ module.exports = function (app) {
     // render page
     var name = app.names[pid] || util.shortString(pid)
     var joinDate = (profile) ? util.prettydate(new Date(profile.createdAt), true) : '-'
+    var composeBtn = h('button.btn.btn-primary.btn-strong.compose-btn', 'Compose')
     var loadMoreBtn = (msgs.length === 30) ? h('p', h('button.btn.btn-primary.btn-block', { onclick: loadMore, style: 'margin-bottom: 24px' }, 'Load More')) : ''    
     app.setPage('profile', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
-      h('.col-xs-8', nameTrustDlg, msgfeed, loadMoreBtn),
+      h('.col-xs-8',
+        nameTrustDlg,
+        h('p', composeBtn),
+        com.postFormExpandable(app, composeBtn, null, { value: '@'+(app.names[pid] || pid)+' ' }),
+        msgfeed,
+        loadMoreBtn
+      ),
       h('.col-xs-2.col-md-3.profile-controls',
         h('.section',
           h('h2', name, com.nameConfidence(pid, app), renameBtn),

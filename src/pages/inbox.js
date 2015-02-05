@@ -30,10 +30,16 @@ module.exports = function (app) {
       }))
     }
 
+    var composeBtn = h('button.btn.btn-primary.btn-strong.compose-btn', 'Compose')
     var loadMoreBtn = (msgs.length === 30) ? h('p', h('button.btn.btn-primary.btn-block', { onclick: loadMore }, 'Load More')) : ''
     app.setPage('feed', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
-      h('.col-xs-10.col-md-9', content, loadMoreBtn),
+      h('.col-xs-10.col-md-9',
+        h('p', composeBtn),
+        com.postFormExpandable(app, composeBtn),
+        content,
+        loadMoreBtn
+      ),
       h('.hidden-xs.hidden-sm.col-md-2',
         com.adverts(app),
         h('hr'),

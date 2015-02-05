@@ -37,12 +37,16 @@ module.exports = function (app) {
         )
       )
     )
-   
+    var composeBtn = h('button.btn.btn-primary.btn-strong.compose-btn', 'Compose')   
     var loadMoreBtn = (msgs.length === 30) ? h('p', h('button.btn.btn-primary.btn-block', { onclick: loadMore, style: 'margin-bottom: 24px' }, 'Load More')) : ''
     app.setPage('posts', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
-      h('.col-xs-10.col-md-9', 
-        h('p#get-latest.hidden', h('button.btn.btn-primary.btn-block', { onclick: app.refreshPage }, 'Get Latest')),
+      h('.col-xs-10.col-md-9',
+        h('p',
+          composeBtn,
+          h('span#get-latest.hidden', h('button.btn.btn-primary', { onclick: app.refreshPage }, 'Get Latest'))
+        ),
+        com.postFormExpandable(app, composeBtn),
         content,
         loadMoreBtn, 
         help

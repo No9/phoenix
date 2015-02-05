@@ -19,6 +19,7 @@ module.exports = function (app, parent, opts) {
 
   // markup
 
+  var isPrivate = false
   var preview = h('.preview')
   var filesInput = h('input.hidden', { type: 'file', multiple: true, onchange: filesAdded })  
   var filesList = h('ul')
@@ -113,12 +114,14 @@ module.exports = function (app, parent, opts) {
         var post = (parent) ? schemas.schemas.replyPost(text, null, parent) : schemas.schemas.post(text)
         if (mentions.length) post.mentions = mentions
         if (extLinks.length) post.attachments = extLinks
+        if (isPrivate) post.private = true
         app.ssb.add(post, function (err) {
           app.setStatus(null)
           enable()
           if (err) swal('Error While Publishing', err.message, 'error')
           else {
-            if (parent)
+            localStorage.postFormDraft = ''
+            if (parent || window.location.hash == '#/')
               app.refreshPage()
             else
               window.location.hash = '#/'
@@ -221,8 +224,10 @@ module.exports = function (app, parent, opts) {
   function onPrivateChange (e) {
     if (e.target.checked) {
       postBtn.innerText = 'Post to Mentioned Users'
+      isPrivate = true
     } else {
       postBtn.innerText = 'Post to All'
+      isPrivate = false
     }
   }
 

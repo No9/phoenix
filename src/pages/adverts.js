@@ -17,6 +17,7 @@ module.exports = function (app) {
     app.setPage('feed', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
       h('.col-xs-10.col-md-11.overflow-scroll', 
+        com.postFormExpandable(app),
         com.advertForm(app),
         h('hr'),
         h('.row', content),

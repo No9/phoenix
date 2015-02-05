@@ -10,11 +10,12 @@ module.exports = function (app) {
 
     // markup
 
+    var composeBtn = h('button.btn.btn-primary.btn-strong.compose-btn', 'Compose')   
     var loadMoreBtn = (msgs.length === 30) ? h('p', h('button.btn.btn-primary.btn-block', { onclick: loadMore }, 'Load More')) : ''
     var content = h('.message-feed', msgs.map(function (msg) { return com.message(app, msg, rawOpts) }))
     app.setPage('feed', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
-      h('.col-xs-10.col-md-9.overflow-scroll', content, loadMoreBtn),
+      h('.col-xs-10.col-md-9.overflow-scroll', h('p', composeBtn), com.postFormExpandable(app, composeBtn), content, loadMoreBtn),
       h('.hidden-xs.hidden-sm.col-md-2',
         com.adverts(app),
         h('hr'),

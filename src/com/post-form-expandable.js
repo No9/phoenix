@@ -2,11 +2,13 @@ var h = require('hyperscript')
 var postForm = require('./post-form')
 
 module.exports = function (app, toggleBtn, parent, opts) {
+  var defaultToggleBtn = !toggleBtn
+  toggleBtn = toggleBtn || h('button.btn.btn-primary.btn-strong.compose-btn', 'Compose') 
   var initBtnText = toggleBtn.textContent
   var form = postForm(app, parent, opts)
-  var formContainer = h('.post-form-container', form)
+  var formContainer = h('.post-form-container', (defaultToggleBtn) ? toggleBtn : '', form)
 
-  if (localStorage.postFormExpanded != 1)
+  if (localStorage.postFormDraft == '')
     formContainer.classList.add('collapsed')
   update()
 

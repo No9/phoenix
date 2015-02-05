@@ -19,6 +19,7 @@ module.exports = function (app) {
     app.setPage('address-book', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
       h('.col-xs-10.col-md-8.overflow-scroll',
+        com.postFormExpandable(app),
         h('table.table.addresses',
           h('thead', h('tr', h('th', 'Name'), h('th', {width: '100'}), h('th.text-center', {width:'70'}, 'Follow'))),
           h('tbody', com.addresses(app, data[0], data[1], data[2]))

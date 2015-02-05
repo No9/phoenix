@@ -29,7 +29,10 @@ module.exports = function (app) {
 
     app.setPage('message', h('.row',
       h('.col-xs-2.col-md-1', com.sidenav(app)),
-      h('.col-xs-10.col-md-9.overflow-scroll', content),
+      h('.col-xs-10.col-md-9.overflow-scroll',
+        com.postFormExpandable(app),
+        content
+      ),
       h('.hidden-xs.hidden-sm.col-md-2',
         com.adverts(app),
         h('hr'),

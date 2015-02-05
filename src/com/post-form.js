@@ -5,6 +5,7 @@ var schemas = require('ssb-msg-schemas')
 var createHash = require('multiblob/util').createHash
 var pull = require('pull-stream')
 var pushable = require('pull-pushable')
+var com = require('./')
 var util = require('../lib/util')
 var markdown = require('../lib/markdown')
 var mentions = require('../lib/mentions')
@@ -22,11 +23,20 @@ module.exports = function (app, parent) {
   var filesInput = h('input.hidden', { type: 'file', multiple: true, onchange: filesAdded })  
   var filesList = h('ul')
   var textarea = h('textarea', { name: 'text', placeholder: 'Compose your message', rows: 6, onkeyup: onPostTextChange })
-  suggestBox(textarea, app.suggestOptions) // decorate with suggestbox 
-  var postBtn = h('button.btn.btn-primary.btn-strong.pull-right', { disabled: true }, 'Post')
+  suggestBox(textarea, app.suggestOptions)
+  var postBtn = h('button.btn.btn-primary.btn-strong.pull-right', { disabled: true }, 'Post to All')
 
   var form = h('form.post-form' + ((!!parent) ? '.reply-form' : ''), { onsubmit: post },
-    h('small.text-muted', 'All posts are public. Markdown, @-mentions, and emojis are supported.'),
+    h('.form-group',
+      h('label',
+        h('input', { type: 'checkbox', name: 'private', onclick: onPrivateChange }),
+        ' ', com.icon('eye-close'),
+        ' Private Thread. Only visible to people @-mentioned in this message.',
+        h('br'), h('small.text-muted', 'WARNING: This feature is not yet enforced with encryption! Private threads may be read by any user!')
+      )
+    ),
+    h('hr'),
+    h('small.text-muted', 'All messages are publicly readable. Markdown, @-mentions, and emojis are supported.'),
     h('div',
       h('.post-form-textarea', textarea),
       h('.post-form-attachments',
@@ -35,11 +45,12 @@ module.exports = function (app, parent) {
         filesInput
       )
     ),
-    h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel')),
     h('.preview-wrapper.panel.panel-default',
       h('.panel-heading', h('small', 'Preview:')),
       h('.panel-body', preview)
-    )
+    ),
+    h('hr'),
+    h('p.post-form-btns', postBtn, h('button.btn.btn-primary', { onclick: cancel }, 'Cancel'))
   )
 
   function disable () {
@@ -203,6 +214,14 @@ module.exports = function (app, parent) {
     attachments.forEach(function (file, i) {
       filesList.appendChild(h('li', file.name, ' ', h('a', { href: '#', onclick: removeFile(i) }, 'remove')))
     })
+  }
+
+  function onPrivateChange (e) {
+    if (e.target.checked) {
+      postBtn.innerText = 'Post to Mentioned Users'
+    } else {
+      postBtn.innerText = 'Post to All'
+    }
   }
 
   return form
